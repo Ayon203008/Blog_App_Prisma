@@ -43,6 +43,7 @@ export const auth = betterAuth({
     },
     emailVerification: {
         sendOnSignUp:true, // * only in the register time email will be send
+        autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url, token }, request) => {
             console.log({ user, url, token })
             // * must make this in under try catch block {}
@@ -128,5 +129,14 @@ export const auth = betterAuth({
                 console.log(error)
             }
         }
-    }
+    },
+    socialProviders: {
+        google: { 
+            clientId: process.env.GOOGLE_CLIENT_ID as string, 
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
+            prompt:"select_account consent", // * add this to your code
+            accessType:"offline"
+
+        }, 
+    },
 });
