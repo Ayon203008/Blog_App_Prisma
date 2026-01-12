@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { CommentService } from "./comment.servics"
+import { string } from "better-auth/*"
 
 
 const createComment = async (req: Request, res: Response) => {
@@ -18,8 +19,6 @@ const createComment = async (req: Request, res: Response) => {
           })
     }
 }
-
-
 const getCommentById = async (req: Request, res: Response) => {
     try {
 
@@ -35,8 +34,6 @@ const getCommentById = async (req: Request, res: Response) => {
           })
     }
 }
-
-
 const getCommentByAuthor = async (req: Request, res: Response) => {
     try {
 
@@ -53,9 +50,46 @@ const getCommentByAuthor = async (req: Request, res: Response) => {
     }
 }
 
+const DeleteComment = async (req: Request, res: Response) => {
+    try {
+
+       const user = req.user
+       const {commentId}=req.params
+        const result = await CommentService.deleteComment(commentId as string,user?.id as string)
+        res.status(201).json(result)
+
+
+    } catch (err) {
+          res.status(400).json({
+            success:false,
+            message:"Comment delete failed"
+          })
+    }
+}
+
+
+const UpdateComment = async (req: Request, res: Response) => {
+    try {
+
+       const user = req.user
+       const {commentId}=req.params
+        const result = await CommentService.updateComment(commentId as string,req.body,user?.id as string)
+        res.status(201).json(result)
+
+
+    } catch (err) {
+          res.status(400).json({
+            success:false,
+            message:"Comment update  failed"
+          })
+    }
+}
+
 
 export const CommentController = {
     createComment,
     getCommentById,
-    getCommentByAuthor
+    getCommentByAuthor,
+    DeleteComment,
+    UpdateComment
 }
