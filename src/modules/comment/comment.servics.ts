@@ -90,7 +90,7 @@ const updateComment = async (commentId: string, data: { content?: string, status
         }
     })
 
-    if(!commentData){
+    if (!commentData) {
         throw new Error("Your provided input is invalid")
     }
 
@@ -103,12 +103,36 @@ const updateComment = async (commentId: string, data: { content?: string, status
     })
 }
 
+const modarateComment = async (id: string, data: { status: CommentStatus }) => {
+
+    const commentData = await prisma.comment.findFirstOrThrow({
+        where: {
+            id
+        },
+        select: {
+            id: true,
+            status: true
+        }
+    })
+
+    if (commentData.status == data.status) {
+        throw new Error(`Your provided status ${data.status} is already up to date`)
+    }
+    return await prisma.comment.update({
+        where: {
+            id
+        },
+        data
+    })
+}
+
 
 export const CommentService = {
     createComment,
     getCommentById,
     getCommentByAuthor,
     deleteComment,
-    updateComment
+    updateComment,
+    modarateComment
 }
 

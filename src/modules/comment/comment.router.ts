@@ -14,4 +14,6 @@ router.post("/", auth(UserRole.ADMIN, UserRole.USER), CommentController.createCo
 
 router.delete("/:commentId", auth(UserRole.ADMIN, UserRole.USER), CommentController.DeleteComment)
 
+router.patch("/:commentId/modarate",auth(UserRole.ADMIN),CommentController.ModarateComment)
+
 export const CommentRouter = router

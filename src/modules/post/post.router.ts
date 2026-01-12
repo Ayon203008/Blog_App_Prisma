@@ -9,4 +9,6 @@ router.get("/", PostController.getAllPost)
 
 router.post("/", auth(UserRole.USER), PostController.createPost)
 
+router.get("/my-posts",auth(UserRole.USER),PostController.getMyPost)
+
 export const postRouter = router
