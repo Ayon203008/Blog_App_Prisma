@@ -9,6 +9,6 @@ router.get("/", PostController.getAllPost)
 
 router.post("/", auth(UserRole.USER), PostController.createPost)
 
-router.get("/my-posts",auth(UserRole.USER),PostController.getMyPost)
+router.get("/my-posts",auth(UserRole.USER,UserRole.ADMIN),PostController.getMyPost)
 
 export const postRouter = router
