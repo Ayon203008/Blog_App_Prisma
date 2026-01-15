@@ -11,6 +11,7 @@ const createPost = async (data: Omit<Post, "id" | "createdAt" | "updatedAt" | "a
     })
     return result
 }
+
 const getAllPost = async (payload: { search: string | undefined, tags: string[] | [], isFeatured: boolean | undefined, status: PostStatus | undefined, page: number, limit: number, skip: number, sortBy: string, sortOrder: string }) => {
     const andConditions: PostWhereInput[] = []
     if (payload.search) {
@@ -85,8 +86,6 @@ const getAllPost = async (payload: { search: string | undefined, tags: string[] 
     }
 }
 
-// ! get post by their id
-
 const getPostById = async (postId: string) => {
     const result = await prisma.$transaction(async (tx) => {
         await tx.post.update({
@@ -133,9 +132,21 @@ const getPostById = async (postId: string) => {
 }
 
 const GetMyPosts = async (authorId: string) => {
-    const result = await prisma.post.findFirstOrThrow({
+    const userInfo = await prisma.user.findUniqueOrThrow({
         where: {
-           id: authorId
+            id: authorId,
+            status: "ACTIVE"  // * user an get post while he was active only
+        },
+        select: {
+            id: true,
+            status: true
+        }
+    })
+
+
+    const result = await prisma.post.findMany({
+        where: {
+            id: authorId
         },
         orderBy: {
             createdAt: "desc"
@@ -149,23 +160,42 @@ const GetMyPosts = async (authorId: string) => {
         }
     })
 
-    const total = await prisma.post.count({
-        where: {
-            authorId
-        }
-    })
-
     return {
-        data: result,
-        total
+        result,
+
     }
 }
 
+
+// * For update user individual post
+const updatePost = async (postId: string, data: Partial<Post>, authorId: string) => {
+    const postData = await prisma.post.findUniqueOrThrow({
+        where: {
+            id: postId
+        },
+        select: {
+            id: true,
+            authorId: true
+        }
+    })
+    if (postData.authorId !== authorId) {
+        throw new Error("You are not the creator of the post")
+    }
+
+    const result = await prisma.post.update({
+        where: {
+            id: postData.id
+        },
+        data
+    })
+    return result
+}
 
 
 export const postService = {
     createPost,
     getAllPost,
     getPostById,
-
+    GetMyPosts,
+    updatePost
 }

@@ -105,7 +105,7 @@ const updateComment = async (commentId: string, data: { content?: string, status
 
 const modarateComment = async (id: string, data: { status: CommentStatus }) => {
 
-    const commentData = await prisma.comment.findFirstOrThrow({
+    const commentData = await prisma.comment.findUniqueOrThrow({
         where: {
             id
         },

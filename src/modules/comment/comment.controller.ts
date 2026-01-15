@@ -83,6 +83,8 @@ const UpdateComment = async (req: Request, res: Response) => {
         })
     }
 }
+
+
 const ModarateComment = async (req: Request, res: Response) => {
     try {
         const { commentId } = req.params
@@ -93,7 +95,7 @@ const ModarateComment = async (req: Request, res: Response) => {
 
         res.status(400).json({
             success: false,
-            message: "Comment update  failed"
+            message: errorMessage
         })
     }
 }
