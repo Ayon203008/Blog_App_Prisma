@@ -13,4 +13,8 @@ router.get("/my-posts",auth(UserRole.USER,UserRole.ADMIN),PostController.getMyPo
 
 router.patch("/:postId",auth(UserRole.ADMIN,UserRole.USER),PostController.updatePost)
 
+router.delete("/:postId",auth(UserRole.USER,UserRole.ADMIN),PostController.DeletePost)
+
+router.get("/stats",auth(UserRole.ADMIN),PostController.GetStats)
+
 export const postRouter = router

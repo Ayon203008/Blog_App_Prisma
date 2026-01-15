@@ -165,10 +165,8 @@ const GetMyPosts = async (authorId: string) => {
 
     }
 }
-
-
 // * For update user individual post
-const updatePost = async (postId: string, data: Partial<Post>, authorId: string,isAdmin:boolean) => {
+const updatePost = async (postId: string, data: Partial<Post>, authorId: string, isAdmin: boolean) => {
     const postData = await prisma.post.findUniqueOrThrow({
         where: {
             id: postId
@@ -181,7 +179,7 @@ const updatePost = async (postId: string, data: Partial<Post>, authorId: string,
     if ((postData.authorId !== authorId) && !isAdmin) {
         throw new Error("You are not the creator of the post")
     }
-    if(!isAdmin){
+    if (!isAdmin) {
         delete data.isFeatured
     }
     const result = await prisma.post.update({
@@ -194,10 +192,68 @@ const updatePost = async (postId: string, data: Partial<Post>, authorId: string,
 }
 
 
+const deletePost = async (postId: string, authorId: string, isAdmin: boolean) => {
+    const postData = await prisma.post.findUniqueOrThrow({
+        where: {
+            id: postId
+        },
+        select: {
+            id: true,
+            authorId: true
+        }
+    })
+
+    if ((postData.authorId !== authorId) && !isAdmin) {
+        throw new Error("You are not the creator of the post")
+    }
+
+    return await prisma.post.delete({
+        where: {
+            id: postId
+        }
+    })
+
+}
+
+const GetStatus = async () => {
+    return await prisma.$transaction(async (tx) => {
+
+        const [totalPost, publishedPost, archrivedPosts, draftPosts, totalComments, approvedComments, totalUsers, adminCount, UserCount,totalViews] = await Promise.all([
+            await tx.post.count(),
+            await tx.post.count({where: {status: PostStatus.PUBLISHED}}),
+            await tx.post.count({where: {status: PostStatus.ARCHIVED}}),
+            await tx.post.count({where: {status: PostStatus.DRAFT}}),
+            await tx.comment.count(),
+            await tx.comment.count({where: {status: CommentStatus.APPROVED}}),
+            await tx.user.count(),
+            await tx.user.count({where: { role: "ADMIN" }}),
+            await tx.user.count({where:{role:"USER"}}),
+            await tx.post.aggregate({_sum:{views:true}})
+        ])
+
+        return {
+            archrivedPosts,
+            totalPost,
+            draftPosts,
+            publishedPost,
+            totalComments,
+            approvedComments,
+            totalUsers,
+            adminCount,
+            UserCount,
+            totalViews
+        }
+    })
+}
+
+
 export const postService = {
     createPost,
     getAllPost,
     getPostById,
     GetMyPosts,
-    updatePost
+    updatePost,
+    deletePost,
+    GetStatus
+
 }

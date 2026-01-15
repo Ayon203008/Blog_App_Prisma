@@ -43,7 +43,7 @@ const getAllPost = async (req: Request, res: Response) => {
 
 
 
-        const {page,limit,skip,sortBy,sortOrder} = PaginationSortingHelper(req.query)
+        const { page, limit, skip, sortBy, sortOrder } = PaginationSortingHelper(req.query)
 
 
 
@@ -59,63 +59,99 @@ const getAllPost = async (req: Request, res: Response) => {
 }
 
 
-const getPostById = async(req:Request,res:Response)=>{
-    try{
-        const {postId}=req.params
+const getPostById = async (req: Request, res: Response) => {
+    try {
+        const { postId } = req.params
 
-        if(!postId){
+        if (!postId) {
             throw new Error("Post id required")
         }
 
         const result = await postService.getPostById(postId)
         res.status(200).json(result)
 
-    }catch(err){
+    } catch (err) {
         res.status(400).json({
-            message:"Post get failed",
-            success:false
+            message: "Post get failed",
+            success: false
         })
     }
 }
 
 
-const getMyPost = async(req:Request,res:Response)=>{
-    try{
+const getMyPost = async (req: Request, res: Response) => {
+    try {
         const user = req.user
-        if(!user){
+        if (!user) {
             throw new Error("Unauthorized")
         }
-        
+
         const result = await postService.GetMyPosts(user.id as string)
         res.status(200).json(result)
 
-    }catch(err){
+    } catch (err) {
         res.status(400).json({
-            message:"Post fetch failed",
-            success:false
+            message: "Post fetch failed",
+            success: false
         })
     }
 }
 
 
-const updatePost = async(req:Request,res:Response)=>{
-    try{
+const updatePost = async (req: Request, res: Response) => {
+    try {
         const user = req.user
-        if(!user){
+        if (!user) {
             throw new Error("Unauthorized")
         }
-        const {postId}=req.params
-        const isAdmin = user.role===UserRole.ADMIN
-        const result = await postService.updatePost(postId as string,req.body,user.id,isAdmin)
+        const { postId } = req.params
+        const isAdmin = user.role === UserRole.ADMIN
+        const result = await postService.updatePost(postId as string, req.body, user.id, isAdmin)
         res.status(200).json(result)
 
-    }catch(err){
+    } catch (err) {
         res.status(400).json({
-            message:"Post update failed",
-            success:false
+            message: "Post update failed",
+            success: false
         })
     }
 }
+
+const DeletePost = async (req: Request, res: Response) => {
+    try {
+        const user = req.user
+        if (!user) {
+            throw new Error("Unauthorized")
+        }
+        const { postId } = req.params
+        const isAdmin = user.role === UserRole.ADMIN
+        const result = await postService.deletePost(postId as string, user.id, isAdmin)
+        res.status(200).json(result)
+
+    } catch (err) {
+        res.status(400).json({
+            message: "Post delete failed",
+            success: false
+        })
+    }
+}
+
+const GetStats = async (req: Request, res: Response) => {
+    try {
+
+
+
+        const result = await postService.GetStatus()
+        res.status(200).json(result)
+
+    } catch (err) {
+        res.status(400).json({
+            message: "Post delete failed",
+            success: false
+        })
+    }
+}
+
 
 
 export const PostController = {
@@ -123,5 +159,7 @@ export const PostController = {
     getAllPost,
     getPostById,
     getMyPost,
-    updatePost
+    updatePost,
+    DeletePost,
+    GetStats
 }
